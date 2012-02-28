@@ -1,5 +1,6 @@
 require "test/unit"
 require "xmlhash"
+require 'json'
 
 class TestXmlhash < Test::Unit::TestCase
   def test_xml
@@ -44,7 +45,18 @@ class TestXmlhash < Test::Unit::TestCase
   <description>update and factory fix (forwarded request 86230 from -miska-)</description>
 </request>
 eos
+
+    rubyoutput =  {"history"=> 
+      [ {"name"=>"review", "when"=>"2011-11-25T15:02:53", "who"=>"coolo"}, 
+        {"comment"=>"please make sure to wait before these depencencies are in openSUSE:Factory: libopendbx-devel, libopendbx1, libopendbxplus1, opendbx-backend-pgsql", 
+          "name"=>"declined", "when"=>"2011-11-25T16:17:30", "who"=>"coolo"}
+      ], 
+      "review"=> 
+      [
+       {"comment"=>"{\"approve\": \"preliminary, version number changed\"} <!-- {\n  \"dest\": {\n    \"ldb\": {\n      \"review\": \"done\", \n      \"rpm_license\": \"GPLv2+\", \n      \"status\": \"production\", \n      \"version\": \"3.0.rc1\"\n    }, \n    \"license\": \"GPLv2+\", \n    \"version\": \"2.9.22\"\n  }, \n  \"hint\": [\n    \"src('3.0') and dest('2.9.22') version numbers differ\"\n  ], \n  \"plugin\": \"0.35\", \n  \"src\": {\n    \"auto-co\": \"/api.opensuse.org/server:dns/pdns%3.0%r65\", \n    \"license\": \"GPLv2+\", \n    \"rev\": \"65\", \n    \"version\": \"3.0\"\n  }\n} -->", "by_group"=>"legal-auto", "when"=>"2011-11-25T15:09:55", "who"=>"licensedigger", "state"=>"accepted"}, {"by_group"=>"factory-auto", "state"=>"new"}], "action"=>{"type"=>"submit", "target"=>{"project"=>"openSUSE:Factory", "package"=>"pdns"}, "source"=>{"rev"=>"65", "project"=>"server:dns", "package"=>"pdns"}}, "id"=>"93651", "description"=>"update and factory fix (forwarded request 86230 from -miska-)", "state"=>{"comment"=>{}, "name"=>"revoked", "when"=>"2011-12-19T13:20:50", "who"=>"coolo"}}
+
     ret = Xmlhash.parse(xml)
-    assert_equal ret, { "hello" => { "who" => "world" } }
+
+    assert_equal ret, rubyoutput
   end
 end
