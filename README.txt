@@ -1,26 +1,28 @@
 = xmlhash
 
-* FIX (url)
+* https://github.com/coolo/xmlhash
 
 == DESCRIPTION:
 
-FIX (describe your package)
+A small C module that wraps libxml2's xmlreader to parse a XML
+string into a ruby hash
 
 == FEATURES/PROBLEMS:
 
-* FIX (list of features or problems)
+* only one function: parse(xml) -> hash
 
 == SYNOPSIS:
 
-  FIX (code sample of usage)
+ ret = parse("<hello who='world'/>")
+ assert_equal ret, { 'who' => 'world' }
 
 == REQUIREMENTS:
 
-* FIX (list of requirements)
+* libxml2 >= 2.6
 
 == INSTALL:
 
-* FIX (sudo gem install, anything else)
+* sudo gem install
 
 == DEVELOPERS:
 
