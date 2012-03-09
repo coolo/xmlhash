@@ -1,6 +1,6 @@
 #include <cassert>
 #include <ruby.h>
-#include <st.h>
+#include <ruby/st.h>
 #include <libxml/parser.h>
 #include <libxml/xmlreader.h>
 
@@ -43,13 +43,13 @@ void XmlhashParserData::end_element(const xmlChar *name)
   VALUE pair = rb_ary_pop(m_stack);
   VALUE cname = rb_ary_entry(pair, 0);
   VALUE chash = rb_ary_entry(pair, 1);
-  assert(!strcmp((const char*)name, RSTRING(cname)->ptr));
+  assert(!strcmp((const char*)name, RSTRING_PTR(cname)));
 
   if (rb_obj_is_kind_of(chash, rb_cHash) && RHASH_SIZE(chash) == 0) {
     // now check if the cstring array contains non-empty string
     VALUE string = rb_ary_join(m_cstring, Qnil);
-    const char *string_ptr = RSTRING(string)->ptr;
-    long string_len = RSTRING(string)->len;
+    const char *string_ptr = RSTRING_PTR(string);
+    long string_len = RSTRING_LEN(string);
     while (string_len > 0 && (string_ptr[0] == ' ' || string_ptr[0] == '\t' || string_ptr[0] == '\n')) {
       string_ptr++;
       string_len--;
