@@ -59,4 +59,26 @@ eos
 
     assert_equal ret, rubyoutput
   end
+
+  def test_entry
+      xml = <<eos
+<?xml version='1.0' encoding='UTF-8'?>
+<directory>
+   <entry name="Apache"/>
+   <entry name="Apache:APR_Pool_Debug"/>
+   <entry name="Apache:MirrorBrain"/>
+   <entry name="Apache:Modules"/>
+</directory>
+eos
+
+      rubyoutput = {"entry"=>
+	             [{"name"=>"Apache"},
+		      {"name"=>"Apache:APR_Pool_Debug"},
+		      {"name"=>"Apache:MirrorBrain"},
+		      {"name"=>"Apache:Modules"}]}
+
+      ret = Xmlhash.parse(xml)
+     
+      assert_equal ret, rubyoutput
+  end
 end

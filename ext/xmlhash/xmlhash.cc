@@ -1,6 +1,5 @@
 #include <cassert>
 #include <ruby.h>
-#include <ruby/st.h>
 #include <libxml/parser.h>
 #include <libxml/xmlreader.h>
 
