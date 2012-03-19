@@ -1,8 +1,10 @@
-lib/xmlhash.rb
-Rakefile
-History.txt
-README.txt
-ext/xmlhash/extconf.rb
-ext/xmlhash/xmlhash.cc
-test/test_xmlhash.rb
 .autotest
+History.txt
+Manifest.txt
+README.txt
+Rakefile
+ext/xmlhash/extconf.rb
+ext/xmlhash/xmlhash.c
+lib/xmlhash.rb
+lib/xmlhash/xmlhash.so
+test/test_xmlhash.rb
