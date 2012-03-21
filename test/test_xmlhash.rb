@@ -55,9 +55,12 @@ eos
       [
        {"comment"=>"{\"approve\": \"preliminary, version number changed\"} <!-- {\n  \"dest\": {\n    \"ldb\": {\n      \"review\": \"done\", \n      \"rpm_license\": \"GPLv2+\", \n      \"status\": \"production\", \n      \"version\": \"3.0.rc1\"\n    }, \n    \"license\": \"GPLv2+\", \n    \"version\": \"2.9.22\"\n  }, \n  \"hint\": [\n    \"src('3.0') and dest('2.9.22') version numbers differ\"\n  ], \n  \"plugin\": \"0.35\", \n  \"src\": {\n    \"auto-co\": \"/api.opensuse.org/server:dns/pdns%3.0%r65\", \n    \"license\": \"GPLv2+\", \n    \"rev\": \"65\", \n    \"version\": \"3.0\"\n  }\n} -->", "by_group"=>"legal-auto", "when"=>"2011-11-25T15:09:55", "who"=>"licensedigger", "state"=>"accepted"}, {"by_group"=>"factory-auto", "state"=>"new"}], "action"=>{"type"=>"submit", "target"=>{"project"=>"openSUSE:Factory", "package"=>"pdns"}, "source"=>{"rev"=>"65", "project"=>"server:dns", "package"=>"pdns"}}, "id"=>"93651", "description"=>"update and factory fix (forwarded request 86230 from -miska-)", "state"=>{"comment"=>{}, "name"=>"revoked", "when"=>"2011-12-19T13:20:50", "who"=>"coolo"}}
 
-    ret = Xmlhash.parse(xml)
+    1000.times {
+      ret = Xmlhash.parse(xml)
+      GC.start
+      assert_equal ret, rubyoutput
+    }
 
-    assert_equal ret, rubyoutput
   end
 
   def test_entry
@@ -81,4 +84,5 @@ eos
      
       assert_equal ret, rubyoutput
   end
+
 end

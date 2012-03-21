@@ -4,44 +4,41 @@
 #include <libxml/parser.h>
 #include <libxml/xmlreader.h>
 
-struct XmlhashParserData 
-{
-  VALUE m_current;
-  VALUE m_stack;
-  VALUE m_cstring;
-  VALUE m_result;
-};
+static VALUE m_current = Qnil;
+static VALUE m_stack = Qnil;
+static VALUE m_cstring = Qnil;
+static VALUE m_result = Qnil;
 
-struct XmlhashParserData *init_XmlhashParserData()
+void init_XmlhashParserData()
 {
-  struct XmlhashParserData *newone = (struct XmlhashParserData *)malloc(sizeof(struct XmlhashParserData));
-  memset(newone, 0, sizeof(struct XmlhashParserData));
-  newone->m_current = Qnil;
-  newone->m_stack = rb_ary_new();
-  return newone;
+  m_current = Qnil;
+  rb_ary_clear(m_stack);
+  rb_ary_clear(m_cstring);
 }
 
-void xml_hash_start_element(struct XmlhashParserData *self, const xmlChar *name)
+void xml_hash_start_element(const xmlChar *name)
 {
   // needed for further attributes
-  self->m_current = rb_hash_new();
+  m_current = rb_hash_new();
   VALUE pair = rb_ary_new();
   rb_ary_push(pair, rb_str_new2((const char*)name));
-  rb_ary_push(pair, self->m_current);
-  rb_ary_push(self->m_stack, pair);
-  self->m_cstring = rb_ary_new();
+  rb_ary_push(pair, m_current);
+  rb_ary_push(m_stack, pair);
+  rb_ary_clear(m_cstring);
 }
 
-void xml_hash_end_element(struct XmlhashParserData *self, const xmlChar *name)
+void xml_hash_end_element(const xmlChar *name)
 {
-  VALUE pair = rb_ary_pop(self->m_stack);
+  assert(m_stack != Qnil);
+  VALUE pair = rb_ary_pop(m_stack);
+  assert(pair != Qnil);
   VALUE cname = rb_ary_entry(pair, 0);
   VALUE chash = rb_ary_entry(pair, 1);
   assert(!strcmp((const char*)name, RSTRING_PTR(cname)));
 
   if (rb_obj_is_kind_of(chash, rb_cHash) && RHASH_SIZE(chash) == 0) {
     // now check if the cstring array contains non-empty string
-    VALUE string = rb_ary_join(self->m_cstring, Qnil);
+    VALUE string = rb_ary_join(m_cstring, Qnil);
     const char *string_ptr = RSTRING_PTR(string);
     long string_len = RSTRING_LEN(string);
     while (string_len > 0 && (string_ptr[0] == ' ' || string_ptr[0] == '\t' || string_ptr[0] == '\n')) {
@@ -55,12 +52,12 @@ void xml_hash_end_element(struct XmlhashParserData *self, const xmlChar *name)
     if (string_len > 0)
       chash = string;
   }
-  if (RARRAY_LEN(self->m_stack) == 0) {
-    self->m_result = chash;
+  if (RARRAY_LEN(m_stack) == 0) {
+    m_result = chash;
     return;
   }
 
-  pair = rb_ary_entry(self->m_stack, RARRAY_LEN(self->m_stack)-1);
+  pair = rb_ary_entry(m_stack, RARRAY_LEN(m_stack)-1);
   //VALUE pname = rb_ary_entry(pair, 0);
   VALUE phash = rb_ary_entry(pair, 1);
 
@@ -80,25 +77,25 @@ void xml_hash_end_element(struct XmlhashParserData *self, const xmlChar *name)
   }
 }
 
-void xml_hash_add_attribute(struct XmlhashParserData *self, const xmlChar *name, const xmlChar *value)
+void xml_hash_add_attribute(const xmlChar *name, const xmlChar *value)
 {
-  assert(self->m_current != Qnil);
-  rb_hash_aset(self->m_current, rb_str_new2((const char*)name), rb_str_new2((const char*)value));
+  assert(m_current != Qnil);
+  rb_hash_aset(m_current, rb_str_new2((const char*)name), rb_str_new2((const char*)value));
 }
 
-void xml_hash_add_text(struct XmlhashParserData *self, const xmlChar *text)
+void xml_hash_add_text(const xmlChar *text)
 {
-  rb_ary_push(self->m_cstring, rb_str_new2((const char*)text));
+  rb_ary_push(m_cstring, rb_str_new2((const char*)text));
 }
 
-void processAttribute(struct XmlhashParserData *state, xmlTextReaderPtr reader) 
+void processAttribute(xmlTextReaderPtr reader) 
 {
   const xmlChar *name = xmlTextReaderConstName(reader);
   assert(xmlTextReaderNodeType(reader) == XML_READER_TYPE_ATTRIBUTE);
-  xml_hash_add_attribute(state, name, xmlTextReaderConstValue(reader));
+  xml_hash_add_attribute(name, xmlTextReaderConstValue(reader));
 }
 
-void processNode(struct XmlhashParserData *state, xmlTextReaderPtr reader) 
+void processNode(xmlTextReaderPtr reader) 
 {
   const xmlChar *name;
   const xmlChar *value;
@@ -110,26 +107,26 @@ void processNode(struct XmlhashParserData *state, xmlTextReaderPtr reader)
   nodetype = xmlTextReaderNodeType(reader);
   
   if (nodetype == XML_READER_TYPE_END_ELEMENT) {
-    xml_hash_end_element(state, name);
+    xml_hash_end_element(name);
     assert(value == NULL);
     return;
   }
 
   if (nodetype == XML_READER_TYPE_ELEMENT) {
-    xml_hash_start_element(state, name);
+    xml_hash_start_element(name);
     assert(value == NULL);
 
     if (xmlTextReaderMoveToFirstAttribute(reader) == 1)
       {
-	processAttribute(state, reader);
+	processAttribute(reader);
 	while (xmlTextReaderMoveToNextAttribute(reader) == 1)
-	  processAttribute(state, reader);
+	  processAttribute(reader);
 
 	xmlTextReaderMoveToElement(reader);
       }
 
     if (xmlTextReaderIsEmptyElement(reader) == 1) {
-      xml_hash_end_element(state, name);
+      xml_hash_end_element(name);
     }
     return;
   }
@@ -138,7 +135,7 @@ void processNode(struct XmlhashParserData *state, xmlTextReaderPtr reader)
       nodetype == XML_READER_TYPE_WHITESPACE || 
       nodetype == XML_READER_TYPE_SIGNIFICANT_WHITESPACE)
     {
-      xml_hash_add_text(state, value);
+      xml_hash_add_text(value);
       return;
     }
 
@@ -151,26 +148,22 @@ void processNode(struct XmlhashParserData *state, xmlTextReaderPtr reader)
 
 static VALUE parse_xml_hash(VALUE self, VALUE rb_xml)
 {
-  xmlChar * xdata;
   char *data;
   xmlTextReaderPtr reader;
   int ret;
-  VALUE result;
 
   Check_Type(rb_xml, T_STRING);
  
   data = (char*)calloc(RSTRING_LEN(rb_xml), sizeof(char));
-  xdata = xmlCharStrndup(StringValuePtr(rb_xml), RSTRING_LEN(rb_xml));
-  (void)xdata;
   memcpy(data, StringValuePtr(rb_xml), RSTRING_LEN(rb_xml));
 
   reader = xmlReaderForMemory(data, RSTRING_LEN(rb_xml), 
 			      NULL, NULL, XML_PARSE_NOENT);
-  struct XmlhashParserData *state = init_XmlhashParserData();
+  init_XmlhashParserData();
   if (reader != NULL) {
     ret = xmlTextReaderRead(reader);
     while (ret == 1) {
-      processNode(state, reader);
+      processNode(reader);
       ret = xmlTextReaderRead(reader);
     }
     xmlFreeTextReader(reader);
@@ -179,9 +172,8 @@ static VALUE parse_xml_hash(VALUE self, VALUE rb_xml)
     }
   }
 
-  result = state->m_result;
-  free(state);
-  return result;
+  free(data);
+  return m_result;
 }
 
 void Init_xmlhash()
@@ -189,4 +181,8 @@ void Init_xmlhash()
   LIBXML_TEST_VERSION
   VALUE mXmlhash = rb_define_module("Xmlhash");
   rb_define_singleton_method(mXmlhash, "parse", &parse_xml_hash, 1);
+  m_stack = rb_ary_new();
+  rb_global_variable(&m_stack);
+  m_cstring = rb_ary_new();
+  rb_global_variable(&m_cstring);
 }
