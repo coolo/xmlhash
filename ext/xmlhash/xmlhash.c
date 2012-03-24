@@ -185,4 +185,6 @@ void Init_xmlhash()
   rb_global_variable(&m_stack);
   m_cstring = rb_ary_new();
   rb_global_variable(&m_cstring);
+  rb_global_variable(&m_result);
+  rb_global_variable(&m_current);
 }

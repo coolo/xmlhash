@@ -1,3 +1,7 @@
+=== 1.2.1 / 2012-03-24
+
+* mark even more variables for ruby
+
 === 1.2 / 2012-03-21
 
 * be careful with ruby variables to avoid GC stress killing us
