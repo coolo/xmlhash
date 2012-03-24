@@ -60,6 +60,10 @@ eos
       GC.start
       assert_equal ret, rubyoutput
     }
+    10000.times {
+      ret = Xmlhash.parse(xml)
+      assert_equal ret, rubyoutput
+     }
 
   end
 
