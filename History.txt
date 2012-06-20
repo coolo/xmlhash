@@ -1,3 +1,7 @@
+=== 1.2.2 / 2012-06-20
+
+* use pkg-config for libxml
+
 === 1.2.1 / 2012-03-24
 
 * mark even more variables for ruby
