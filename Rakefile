@@ -9,7 +9,7 @@ Hoe.spec 'xmlhash' do
   self.readme_file = 'README.txt'
   self.spec_extras = { :extensions => ["ext/xmlhash/extconf.rb"] }
   self.extra_dev_deps << ['rake-compiler', '>= 0']
-  self.extra_deps << ['pkg-config']
+  self.extra_dev_deps << ['pkg-config']
   Rake::ExtensionTask.new('xmlhash', spec) do |ext|
     ext.lib_dir = File.join('lib', 'xmlhash')
   end
