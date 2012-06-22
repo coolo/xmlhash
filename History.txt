@@ -1,6 +1,6 @@
 === 1.2.3 / 2012-06-22
 
-* pkg-config is no runtime dep
+* (pulled)
 
 === 1.2.2 / 2012-06-20
 
