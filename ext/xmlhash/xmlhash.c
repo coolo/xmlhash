@@ -1,9 +1,9 @@
 #include <assert.h>
 #include <ruby.h>
-#if RUBY_VERSION_MAJOR == 1 && RUBY_VERSION_MINOR < 9
-#include <st.h>
+#ifdef HAVE_RUBY_ST_H
+# include <ruby/st.h>
 #else
-#include <ruby/st.h>
+# include <st.h>
 #endif
 #include <libxml/parser.h>
 #include <libxml/xmlreader.h>
