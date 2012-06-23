@@ -18,9 +18,10 @@ void init_XmlhashParserData()
 
 void xml_hash_start_element(const xmlChar *name)
 {
+  VALUE pair;
   // needed for further attributes
   m_current = rb_hash_new();
-  VALUE pair = rb_ary_new();
+  pair = rb_ary_new();
   rb_ary_push(pair, rb_str_new2((const char*)name));
   rb_ary_push(pair, m_current);
   rb_ary_push(m_stack, pair);
@@ -29,18 +30,24 @@ void xml_hash_start_element(const xmlChar *name)
 
 void xml_hash_end_element(const xmlChar *name)
 {
+  VALUE pair, cname, chash;
+
   assert(m_stack != Qnil);
-  VALUE pair = rb_ary_pop(m_stack);
+  pair = rb_ary_pop(m_stack);
   assert(pair != Qnil);
-  VALUE cname = rb_ary_entry(pair, 0);
-  VALUE chash = rb_ary_entry(pair, 1);
+  cname = rb_ary_entry(pair, 0);
+  chash = rb_ary_entry(pair, 1);
   assert(!strcmp((const char*)name, RSTRING_PTR(cname)));
 
   if (rb_obj_is_kind_of(chash, rb_cHash) && RHASH_SIZE(chash) == 0) {
+    VALUE string;
+    const char *string_ptr;
+    long string_len;
+
     // now check if the cstring array contains non-empty string
-    VALUE string = rb_ary_join(m_cstring, Qnil);
-    const char *string_ptr = RSTRING_PTR(string);
-    long string_len = RSTRING_LEN(string);
+    string = rb_ary_join(m_cstring, Qnil);
+    string_ptr = RSTRING_PTR(string);
+    string_len = RSTRING_LEN(string);
     while (string_len > 0 && (string_ptr[0] == ' ' || string_ptr[0] == '\t' || string_ptr[0] == '\n')) {
       string_ptr++;
       string_len--;
