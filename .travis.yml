@@ -5,13 +5,9 @@ rvm:
   - 1.9.2
   - 1.9.3
   - rbx-18mode
-  - jruby
   - ruby-head
   - ree
 before_script:
   - sudo apt-get update
   - sudo apt-get install libxml2-dev
   - bundle install
-env:
-  - ISOLATED=true
-  - ISOLATED=false
