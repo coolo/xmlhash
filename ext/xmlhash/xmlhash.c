@@ -30,7 +30,7 @@ void xml_hash_start_element(const xmlChar *name)
 
 void xml_hash_end_element(const xmlChar *name)
 {
-  VALUE pair, cname, chash;
+  VALUE pair, cname, chash, phash, obj;
 
   assert(m_stack != Qnil);
   pair = rb_ary_pop(m_stack);
@@ -65,10 +65,9 @@ void xml_hash_end_element(const xmlChar *name)
   }
 
   pair = rb_ary_entry(m_stack, RARRAY_LEN(m_stack)-1);
-  //VALUE pname = rb_ary_entry(pair, 0);
-  VALUE phash = rb_ary_entry(pair, 1);
+  phash = rb_ary_entry(pair, 1);
 
-  VALUE obj = rb_hash_aref(phash, cname);
+  obj = rb_hash_aref(phash, cname);
   if (obj != Qnil) {
     if (rb_obj_is_kind_of(obj, rb_cArray)) {
       rb_ary_push(obj, chash);
