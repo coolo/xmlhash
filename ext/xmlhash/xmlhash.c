@@ -1,6 +1,10 @@
 #include <assert.h>
 #include <ruby.h>
+#if RUBY_VERSION_MAJOR == 1 && RUBY_VERSION_MINOR < 9
 #include <st.h>
+#else
+#include <ruby/st.h>
+#endif
 #include <libxml/parser.h>
 #include <libxml/xmlreader.h>
 
@@ -184,8 +188,10 @@ static VALUE parse_xml_hash(VALUE self, VALUE rb_xml)
 
 void Init_xmlhash()
 {
+  VALUE mXmlhash;
+
   LIBXML_TEST_VERSION
-  VALUE mXmlhash = rb_define_module("Xmlhash");
+  mXmlhash = rb_define_module("Xmlhash");
   rb_define_singleton_method(mXmlhash, "parse", &parse_xml_hash, 1);
   m_stack = rb_ary_new();
   rb_global_variable(&m_stack);
