@@ -23,7 +23,7 @@ void init_XmlhashParserData()
 void xml_hash_start_element(const xmlChar *name)
 {
   VALUE pair;
-  // needed for further attributes
+  /* needed for further attributes */
   m_current = rb_hash_new();
   pair = rb_ary_new();
   rb_ary_push(pair, rb_str_new2((const char*)name));
@@ -48,7 +48,7 @@ void xml_hash_end_element(const xmlChar *name)
     const char *string_ptr;
     long string_len;
 
-    // now check if the cstring array contains non-empty string
+    /* now check if the cstring array contains non-empty string */
     string = rb_ary_join(m_cstring, Qnil);
     string_ptr = RSTRING_PTR(string);
     string_len = RSTRING_LEN(string);
@@ -59,7 +59,7 @@ void xml_hash_end_element(const xmlChar *name)
     while (string_len > 0 && (string_ptr[string_len-1] == ' ' || string_ptr[string_len-1] == '\t' || string_ptr[string_len-1] == '\n')) {
       string_len--;
     }
-    // avoid overwriting empty hash with empty string
+    /* avoid overwriting empty hash with empty string */
     if (string_len > 0)
       chash = string;
   }
@@ -82,7 +82,7 @@ void xml_hash_end_element(const xmlChar *name)
       rb_hash_aset(phash, cname, nobj);
     }
   } else {
-    // implement force_array
+    /* implement force_array */
     rb_hash_aset(phash, cname, chash);
   }
 }
