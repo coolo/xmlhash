@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 require "test/unit"
 require "xmlhash"
 require 'json'
@@ -87,6 +89,17 @@ eos
       ret = Xmlhash.parse(xml)
      
       assert_equal ret, rubyoutput
+  end
+
+  def test_encoding
+     xml = "<?xml version='1.0' encoding='UTF-8'?><name>Adrian Schröter</name>"
+
+     ret = Xmlhash.parse(xml)
+     assert_equal ret, "Adrian Schröter"
+
+     xml = "<?xml version='1.0' encoding='UTF-8'?><name value='Adrian Schröter'/>"
+     ret = Xmlhash.parse(xml)
+     assert_equal ret, {"value"=>"Adrian Schröter"}
   end
 
 end

@@ -5,6 +5,12 @@
 #else
 # include <st.h>
 #endif
+
+/* API_VERSION_CODE is only defined in those we want */
+#ifdef HAVE_RUBY_ENCODING_H
+# include <ruby/encoding.h>
+#endif
+
 #include <libxml/parser.h>
 #include <libxml/xmlreader.h>
 
@@ -12,6 +18,9 @@ static VALUE m_current = Qnil;
 static VALUE m_stack = Qnil;
 static VALUE m_cstring = Qnil;
 static VALUE m_result = Qnil;
+#ifdef HAVE_RUBY_ENCODING_H
+static rb_encoding *m_current_encoding = NULL;
+#endif
 
 void init_XmlhashParserData()
 {
@@ -89,13 +98,29 @@ void xml_hash_end_element(const xmlChar *name)
 
 void xml_hash_add_attribute(const xmlChar *name, const xmlChar *value)
 {
+#ifdef HAVE_RUBY_ENCODING_H
+  VALUE v_name, v_value;
+#endif
+
   assert(m_current != Qnil);
+#ifdef HAVE_RUBY_ENCODING_H
+  v_name = rb_external_str_new_with_enc((const char*)name, xmlStrlen(name), m_current_encoding);
+  v_value = rb_external_str_new_with_enc((const char*)value, xmlStrlen(value), m_current_encoding);
+  rb_hash_aset(m_current, v_name, v_value);
+#else
   rb_hash_aset(m_current, rb_str_new2((const char*)name), rb_str_new2((const char*)value));
+#endif
 }
 
 void xml_hash_add_text(const xmlChar *text)
 {
+#ifdef HAVE_RUBY_ENCODING_H
+  VALUE str;
+  str = rb_external_str_new_with_enc((const char*)text, xmlStrlen(text), m_current_encoding);
+  rb_ary_push(m_cstring, str);
+#else
   rb_ary_push(m_cstring, rb_str_new2((const char*)text));
+#endif
 }
 
 void processAttribute(xmlTextReaderPtr reader) 
@@ -163,7 +188,10 @@ static VALUE parse_xml_hash(VALUE self, VALUE rb_xml)
   int ret;
 
   Check_Type(rb_xml, T_STRING);
- 
+#ifdef HAVE_RUBY_ENCODING_H
+  m_current_encoding = rb_enc_get(rb_xml);
+#endif
+
   data = (char*)calloc(RSTRING_LEN(rb_xml), sizeof(char));
   memcpy(data, StringValuePtr(rb_xml), RSTRING_LEN(rb_xml));
 
@@ -183,6 +211,9 @@ static VALUE parse_xml_hash(VALUE self, VALUE rb_xml)
   }
 
   free(data);
+#ifdef HAVE_RUBY_ENCODING_H
+  m_current_encoding = 0;
+#endif
   return m_result;
 }
 

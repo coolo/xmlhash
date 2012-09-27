@@ -1,3 +1,7 @@
+=== 1.2.4 / 2012-09-27
+
+* set the encoding of the result to the encoding of the input
+
 === 1.2.3 / 2012-06-22
 
 * (pulled)
