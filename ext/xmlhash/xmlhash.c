@@ -1,4 +1,9 @@
 #include <assert.h>
+
+/* libxml headers first - see https://github.com/coolo/xmlhash/issues/1 */
+#include <libxml/parser.h>
+#include <libxml/xmlreader.h>
+
 #include <ruby.h>
 #ifdef HAVE_RUBY_ST_H
 # include <ruby/st.h>
@@ -10,9 +15,6 @@
 #ifdef HAVE_RUBY_ENCODING_H
 # include <ruby/encoding.h>
 #endif
-
-#include <libxml/parser.h>
-#include <libxml/xmlreader.h>
 
 static VALUE m_current = Qnil;
 static VALUE m_stack = Qnil;
