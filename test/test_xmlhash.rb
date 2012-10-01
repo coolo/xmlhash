@@ -72,7 +72,7 @@ eos
   def test_entry
       xml = <<eos
 <?xml version='1.0' encoding='UTF-8'?>
-<directory>
+<directory count="4">
    <entry name="Apache"/>
    <entry name="Apache:APR_Pool_Debug"/>
    <entry name="Apache:MirrorBrain"/>
@@ -80,15 +80,18 @@ eos
 </directory>
 eos
 
-      rubyoutput = {"entry"=>
-	             [{"name"=>"Apache"},
-		      {"name"=>"Apache:APR_Pool_Debug"},
-		      {"name"=>"Apache:MirrorBrain"},
-		      {"name"=>"Apache:Modules"}]}
+    rubyoutput = {"count" => "4",
+      "entry"=>
+      [{"name"=>"Apache"},
+       {"name"=>"Apache:APR_Pool_Debug"},
+       {"name"=>"Apache:MirrorBrain"},
+       {"name"=>"Apache:Modules"}]}
+    
+    ret = Xmlhash.parse(xml)
+    assert_equal ret, rubyoutput
 
-      ret = Xmlhash.parse(xml)
-     
-      assert_equal ret, rubyoutput
+    assert_equal ret.elements("entry").first.value("name"), "Apache"
+
   end
 
   def test_encoding
@@ -100,6 +103,8 @@ eos
      xml = "<?xml version='1.0' encoding='UTF-8'?><name value='Adrian Schröter'/>"
      ret = Xmlhash.parse(xml)
      assert_equal ret, {"value"=>"Adrian Schröter"}
+
+     assert_equal ret.get("value"), "Adrian Schröter"
   end
 
 end

@@ -20,6 +20,7 @@ static VALUE m_current = Qnil;
 static VALUE m_stack = Qnil;
 static VALUE m_cstring = Qnil;
 static VALUE m_result = Qnil;
+static VALUE m_xmlClass = Qnil;
 #ifdef HAVE_RUBY_ENCODING_H
 static rb_encoding *m_current_encoding = NULL;
 #endif
@@ -35,7 +36,7 @@ void xml_hash_start_element(const xmlChar *name)
 {
   VALUE pair;
   /* needed for further attributes */
-  m_current = rb_hash_new();
+  m_current = rb_class_new_instance(0, 0, m_xmlClass);
   pair = rb_ary_new();
   rb_ary_push(pair, rb_str_new2((const char*)name));
   rb_ary_push(pair, m_current);
@@ -225,6 +226,7 @@ void Init_xmlhash()
 
   LIBXML_TEST_VERSION
   mXmlhash = rb_define_module("Xmlhash");
+  m_xmlClass = rb_define_class_under(mXmlhash, "XMLHash", rb_cHash);
   rb_define_singleton_method(mXmlhash, "parse", &parse_xml_hash, 1);
   m_stack = rb_ary_new();
   rb_global_variable(&m_stack);
