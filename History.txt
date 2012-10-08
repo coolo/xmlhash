@@ -1,3 +1,8 @@
+=== 1.3.1 / 2012-10-08
+
+* fix manifest
+* add constructor to Xmlhash
+
 === 1.3.0 / 2012-10-01
 
 * parse will no longer return a plain ruby Hash, but a XMLHash,

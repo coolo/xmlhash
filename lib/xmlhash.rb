@@ -1,7 +1,7 @@
 require 'xmlhash/xmlhash'
 
 module Xmlhash
-  VERSION = '1.3.0'
+  VERSION = '1.3.1'
 
   class XMLHash < Hash
     
@@ -53,6 +53,11 @@ module Xmlhash
       return sub
     end
     
+    # Initialize with a hash
+    def initialize(opts = nil)
+      self.replace(opts) if opts
+    end
+
     def inspect
       "X(#{super})"
     end
