@@ -1,4 +1,6 @@
 .autotest
+.travis.yml
+Gemfile
 History.txt
 Manifest.txt
 README.txt
@@ -6,5 +8,4 @@ Rakefile
 ext/xmlhash/extconf.rb
 ext/xmlhash/xmlhash.c
 lib/xmlhash.rb
-lib/xmlhash/xmlhash.so
 test/test_xmlhash.rb
