@@ -107,4 +107,15 @@ eos
      assert_equal ret.get("value"), "Adrian Schröter"
   end
 
+  def test_cdata
+    xml = <<eos
+<sourcediff key="7ebf6606bf56a9f952dda73f0d861738">
+   <new name="myfile" md5="299d8fe34c516b078c3d367e3fb460b9" size="12"/>
+    <diff lines="1">DummyContent</diff>
+</sourcediff>
+eos
+
+    ret = Xmlhash.parse(xml)
+    assert_equal ret['diff'], {"lines" => "1", "_content" => "DummyContent" }
+  end
 end

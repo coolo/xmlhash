@@ -1,3 +1,8 @@
+=== 1.3.2 / 2012-11-06
+
+* elements that have both attributes and content, are now parsed
+  as { "attr" => "value", "_content" => "CONTENT" }
+
 === 1.3.1 / 2012-10-08
 
 * fix manifest

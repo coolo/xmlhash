@@ -55,7 +55,7 @@ void xml_hash_end_element(const xmlChar *name)
   chash = rb_ary_entry(pair, 1);
   assert(!strcmp((const char*)name, RSTRING_PTR(cname)));
 
-  if (rb_obj_is_kind_of(chash, rb_cHash) && RHASH_SIZE(chash) == 0) {
+  if (rb_obj_is_kind_of(chash, rb_cHash)) {
     VALUE string;
     const char *string_ptr;
     long string_len;
@@ -72,9 +72,15 @@ void xml_hash_end_element(const xmlChar *name)
       string_len--;
     }
     /* avoid overwriting empty hash with empty string */
-    if (string_len > 0)
-      chash = string;
+    if (string_len > 0) {
+      if (RHASH_SIZE(chash) == 0)
+	chash = string;
+      else {
+	rb_hash_aset(chash, rb_str_new2("_content"), string);
+      }
+    }
   }
+  rb_ary_clear(m_cstring);
   if (RARRAY_LEN(m_stack) == 0) {
     m_result = chash;
     return;
