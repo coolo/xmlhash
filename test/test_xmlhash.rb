@@ -118,4 +118,10 @@ eos
     ret = Xmlhash.parse(xml)
     assert_equal ret['diff'], {"lines" => "1", "_content" => "DummyContent" }
   end
+
+  def test_empty
+    xml = "<request><files/></request>"
+    ret = Xmlhash.parse(xml)
+    assert_equal ret.elements('files'), []
+  end
 end

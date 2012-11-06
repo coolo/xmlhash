@@ -1,7 +1,7 @@
 require 'xmlhash/xmlhash'
 
 module Xmlhash
-  VERSION = '1.3.2'
+  VERSION = '1.3.3'
 
   class XMLHash < Hash
     
@@ -18,7 +18,7 @@ module Xmlhash
         raise ArgumentError, "expected string"
       end
       sub = self[name]
-      return [] unless sub
+      return [] if !sub || sub.empty?
       unless sub.kind_of? Array
         if block_given?
           yield sub
