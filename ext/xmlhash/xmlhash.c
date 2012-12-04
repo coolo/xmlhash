@@ -199,6 +199,8 @@ static VALUE parse_xml_hash(VALUE self, VALUE rb_xml)
   Check_Type(rb_xml, T_STRING);
 #ifdef HAVE_RUBY_ENCODING_H
   m_current_encoding = rb_enc_get(rb_xml);
+  if (m_current_encoding == rb_ascii8bit_encoding() || m_current_encoding == rb_usascii_encoding())
+      m_current_encoding = rb_utf8_encoding();
 #endif
 
   data = (char*)calloc(RSTRING_LEN(rb_xml), sizeof(char));
