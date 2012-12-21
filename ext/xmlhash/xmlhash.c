@@ -203,12 +203,15 @@ static VALUE parse_xml_hash(VALUE self, VALUE rb_xml)
       m_current_encoding = rb_utf8_encoding();
 #endif
 
+  m_result = Qnil;
+
   data = (char*)calloc(RSTRING_LEN(rb_xml), sizeof(char));
   memcpy(data, StringValuePtr(rb_xml), RSTRING_LEN(rb_xml));
 
   reader = xmlReaderForMemory(data, RSTRING_LEN(rb_xml), 
-			      NULL, NULL, XML_PARSE_NOENT);
+			      NULL, NULL, XML_PARSE_NOENT | XML_PARSE_NOERROR | XML_PARSE_NOWARNING );
   init_XmlhashParserData();
+
   if (reader != NULL) {
     ret = xmlTextReaderRead(reader);
     while (ret == 1) {
@@ -217,7 +220,7 @@ static VALUE parse_xml_hash(VALUE self, VALUE rb_xml)
     }
     xmlFreeTextReader(reader);
     if (ret != 0) {
-      printf("%s : failed to parse\n", data);
+      /* printf("%s : failed to parse\n", data); */
     }
   }
 

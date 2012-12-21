@@ -1,7 +1,7 @@
 require 'xmlhash/xmlhash'
 
 module Xmlhash
-  VERSION = '1.3.4'
+  VERSION = '1.3.5'
 
   class XMLHash < Hash
     

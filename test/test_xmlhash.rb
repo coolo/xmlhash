@@ -62,6 +62,7 @@ eos
       GC.start
       assert_equal ret, rubyoutput
     }
+ 
     10000.times {
       ret = Xmlhash.parse(xml)
       assert_equal ret, rubyoutput
@@ -123,6 +124,12 @@ eos
     xml = "<request><files/></request>"
     ret = Xmlhash.parse(xml)
     assert_equal ret.elements('files'), []
+  end
+
+  def test_garbage
+    # unfortunately it's rather challening testing nothing is printed to stderr
+    ret = Xmlhash.parse("asdasdaskdladka")
+    assert_equal nil, ret
   end
 
   def test_utf8
