@@ -150,6 +150,9 @@ void processNode(xmlTextReaderPtr reader)
 
   nodetype = xmlTextReaderNodeType(reader);
   
+  if (nodetype == XML_READER_TYPE_COMMENT)
+    return; // ignore
+
   if (nodetype == XML_READER_TYPE_END_ELEMENT) {
     xml_hash_end_element(name);
     assert(value == NULL);
