@@ -1,7 +1,7 @@
 require 'xmlhash/xmlhash'
 
 module Xmlhash
-  VERSION = '1.3.5'
+  VERSION = '1.3.6'
 
   class XMLHash < Hash
     
@@ -61,5 +61,12 @@ module Xmlhash
     def inspect
       "X(#{super})"
     end
+
   end
-end 
+
+  def self.parse(str)
+    @@mutex ||= Mutex.new
+    @@mutex.synchronize { parse_int(str) }
+  end
+
+end

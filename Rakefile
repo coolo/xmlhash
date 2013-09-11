@@ -7,6 +7,7 @@ require 'rake/extensiontask'
 Hoe.spec 'xmlhash' do
   developer('Stephan Kulow', 'coolo@suse.com')
   self.readme_file = 'README.txt'
+  self.license('MIT')
   self.spec_extras = { :extensions => ["ext/xmlhash/extconf.rb"] }
   self.extra_dev_deps << ['rake-compiler', '>= 0']
   self.extra_deps << ['pkg-config']

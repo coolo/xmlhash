@@ -1,3 +1,8 @@
+=== 1.3.6 / 2013-09-11
+
+* Wrap libxml2 parsing in a synchronize block - otherwise the stacking
+  will not work and it's too much work to make it reentrant
+
 === 1.3.5 / 2012-12-21 ("final edition")
 
 * Initialize result so we don't return something random in case of parse error

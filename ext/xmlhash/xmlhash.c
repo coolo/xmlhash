@@ -238,7 +238,7 @@ void Init_xmlhash()
   LIBXML_TEST_VERSION
   mXmlhash = rb_define_module("Xmlhash");
   m_xmlClass = rb_define_class_under(mXmlhash, "XMLHash", rb_cHash);
-  rb_define_singleton_method(mXmlhash, "parse", &parse_xml_hash, 1);
+  rb_define_singleton_method(mXmlhash, "parse_int", &parse_xml_hash, 1);
   m_stack = rb_ary_new();
   rb_global_variable(&m_stack);
   m_cstring = rb_ary_new();

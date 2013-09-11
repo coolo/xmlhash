@@ -4,9 +4,7 @@ require "test/unit"
 require "xmlhash"
 require 'json'
 
-class TestXmlhash < Test::Unit::TestCase
-  def test_xml
-    xml = <<eos
+Xml = <<eos
 <request id="93651">
   <action type="submit">
     <source project="server:dns" package="pdns" rev="65"/>
@@ -16,28 +14,7 @@ class TestXmlhash < Test::Unit::TestCase
     <comment/>
   </state>
   <review state="accepted" by_group="legal-auto" who="licensedigger" when="2011-11-25T15:09:55">
-    <comment>{"approve": "preliminary, version number changed"} &lt;!-- {
-  "dest": {
-    "ldb": {
-      "review": "done", 
-      "rpm_license": "GPLv2+", 
-      "status": "production", 
-      "version": "3.0.rc1"
-    }, 
-    "license": "GPLv2+", 
-    "version": "2.9.22"
-  }, 
-  "hint": [
-    "src('3.0') and dest('2.9.22') version numbers differ"
-  ], 
-  "plugin": "0.35", 
-  "src": {
-    "auto-co": "/api.opensuse.org/server:dns/pdns%3.0%r65", 
-    "license": "GPLv2+", 
-    "rev": "65", 
-    "version": "3.0"
-  }
-} --&gt;</comment>
+    <comment>Big comment</comment>
   </review>
   <review state="new" by_group="factory-auto"/>
   <history name="review" who="coolo" when="2011-11-25T15:02:53"/>
@@ -48,30 +25,54 @@ class TestXmlhash < Test::Unit::TestCase
 </request>
 eos
 
-    rubyoutput =  {"history"=> 
-      [ {"name"=>"review", "when"=>"2011-11-25T15:02:53", "who"=>"coolo"}, 
-        {"comment"=>"please make sure to wait before these depencencies are in openSUSE:Factory: libopendbx-devel, libopendbx1, libopendbxplus1, opendbx-backend-pgsql", 
-          "name"=>"declined", "when"=>"2011-11-25T16:17:30", "who"=>"coolo"}
-      ], 
-      "review"=> 
-      [
-       {"comment"=>"{\"approve\": \"preliminary, version number changed\"} <!-- {\n  \"dest\": {\n    \"ldb\": {\n      \"review\": \"done\", \n      \"rpm_license\": \"GPLv2+\", \n      \"status\": \"production\", \n      \"version\": \"3.0.rc1\"\n    }, \n    \"license\": \"GPLv2+\", \n    \"version\": \"2.9.22\"\n  }, \n  \"hint\": [\n    \"src('3.0') and dest('2.9.22') version numbers differ\"\n  ], \n  \"plugin\": \"0.35\", \n  \"src\": {\n    \"auto-co\": \"/api.opensuse.org/server:dns/pdns%3.0%r65\", \n    \"license\": \"GPLv2+\", \n    \"rev\": \"65\", \n    \"version\": \"3.0\"\n  }\n} -->", "by_group"=>"legal-auto", "when"=>"2011-11-25T15:09:55", "who"=>"licensedigger", "state"=>"accepted"}, {"by_group"=>"factory-auto", "state"=>"new"}], "action"=>{"type"=>"submit", "target"=>{"project"=>"openSUSE:Factory", "package"=>"pdns"}, "source"=>{"rev"=>"65", "project"=>"server:dns", "package"=>"pdns"}}, "id"=>"93651", "description"=>"update and factory fix (forwarded request 86230 from -miska-)", "state"=>{"comment"=>{}, "name"=>"revoked", "when"=>"2011-12-19T13:20:50", "who"=>"coolo"}}
+Output = {"history" =>
+              [{"name" => "review", "when" => "2011-11-25T15:02:53", "who" => "coolo"},
+               {"comment" => "please make sure to wait before these depencencies are in openSUSE:Factory: libopendbx-devel, libopendbx1, libopendbxplus1, opendbx-backend-pgsql",
+                "name" => "declined", "when" => "2011-11-25T16:17:30", "who" => "coolo"}
+              ],
+          "review" =>
+              [
+                  {"comment" => "Big comment",
+                   "by_group" => "legal-auto",
+                   "when" => "2011-11-25T15:09:55",
+                   "who" => "licensedigger",
+                   "state" => "accepted"
+                  },
+                  {"by_group" => "factory-auto",
+                   "state" => "new"}
+              ], "action" => {"type" => "submit", "target" => {"project" => "openSUSE:Factory", "package" => "pdns"}, "source" => {"rev" => "65", "project" => "server:dns", "package" => "pdns"}}, "id" => "93651", "description" => "update and factory fix (forwarded request 86230 from -miska-)", "state" => {"comment" => {}, "name" => "revoked", "when" => "2011-12-19T13:20:50", "who" => "coolo"}}
+
+
+class TestXmlhash < Test::Unit::TestCase
+  def test_xml
+
 
     1000.times {
-      ret = Xmlhash.parse(xml)
+      ret = Xmlhash.parse(Xml)
       GC.start
-      assert_equal ret, rubyoutput
+      assert_equal ret, Output
     }
- 
+
     10000.times {
-      ret = Xmlhash.parse(xml)
-      assert_equal ret, rubyoutput
-     }
+      ret = Xmlhash.parse(Xml)
+      assert_equal ret, Output
+    }
 
   end
 
+  def test_threading
+    10.times do
+      Thread.new do
+        100.times do
+          ret = Xmlhash.parse(Xml)
+          assert_equal ret, Output
+        end
+      end
+    end
+  end
+
   def test_entry
-      xml = <<eos
+    xml = <<eos
 <?xml version='1.0' encoding='UTF-8'?>
 <directory count="4">
    <entry name="Apache"/>
@@ -82,12 +83,12 @@ eos
 eos
 
     rubyoutput = {"count" => "4",
-      "entry"=>
-      [{"name"=>"Apache"},
-       {"name"=>"Apache:APR_Pool_Debug"},
-       {"name"=>"Apache:MirrorBrain"},
-       {"name"=>"Apache:Modules"}]}
-    
+                  "entry" =>
+                      [{"name" => "Apache"},
+                       {"name" => "Apache:APR_Pool_Debug"},
+                       {"name" => "Apache:MirrorBrain"},
+                       {"name" => "Apache:Modules"}]}
+
     ret = Xmlhash.parse(xml)
     assert_equal ret, rubyoutput
 
@@ -96,16 +97,16 @@ eos
   end
 
   def test_encoding
-     xml = "<?xml version='1.0' encoding='UTF-8'?><name>Adrian Schröter</name>"
+    xml = "<?xml version='1.0' encoding='UTF-8'?><name>Adrian Schröter</name>"
 
-     ret = Xmlhash.parse(xml)
-     assert_equal ret, "Adrian Schröter"
+    ret = Xmlhash.parse(xml)
+    assert_equal ret, "Adrian Schröter"
 
-     xml = "<?xml version='1.0' encoding='UTF-8'?><name value='Adrian Schröter'/>"
-     ret = Xmlhash.parse(xml)
-     assert_equal ret, {"value"=>"Adrian Schröter"}
+    xml = "<?xml version='1.0' encoding='UTF-8'?><name value='Adrian Schröter'/>"
+    ret = Xmlhash.parse(xml)
+    assert_equal ret, {"value" => "Adrian Schröter"}
 
-     assert_equal ret.get("value"), "Adrian Schröter"
+    assert_equal ret.get("value"), "Adrian Schröter"
   end
 
   def test_cdata
@@ -117,7 +118,7 @@ eos
 eos
 
     ret = Xmlhash.parse(xml)
-    assert_equal ret['diff'], {"lines" => "1", "_content" => "DummyContent" }
+    assert_equal ret['diff'], {"lines" => "1", "_content" => "DummyContent"}
   end
 
   def test_empty
@@ -133,7 +134,7 @@ eos
   end
 
   def test_utf8
-     xml = '<package name="libconfig" project="home:coolo">
+    xml = '<package name="libconfig" project="home:coolo">
   <title>libconfig &#8211; C/C++ Configuration File Library</title>
   <description>Libconfig is a simple library for processing structured configuration files, like this one: test.cfg. This file format is more compact and more readable than XML. And unlike XML, it is type-aware, so it is not necessary to do string parsing in application code.
 
@@ -154,7 +155,7 @@ The library includes bindings for both the C and C++ languages. It works on POSI
     xml.encode!('ISO-8859-1')
     xh = Xmlhash.parse(xml)
     assert_equal "ISO-8859-1", xh['title'].encoding.to_s
-    
+
     xml = '<?xml version="1.0" encoding="ISO-8859-1"?>
     <package><title>&#228;&#211;&#254;</title></package>'
     xml.encode!('US-ASCII')
