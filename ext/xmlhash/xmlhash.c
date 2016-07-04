@@ -212,7 +212,7 @@ static VALUE parse_xml_hash(VALUE self, VALUE rb_xml)
   memcpy(data, StringValuePtr(rb_xml), RSTRING_LEN(rb_xml));
 
   reader = xmlReaderForMemory(data, RSTRING_LEN(rb_xml), 
-			      NULL, NULL, XML_PARSE_NOENT | XML_PARSE_NOERROR | XML_PARSE_NOWARNING );
+			      NULL, NULL, XML_PARSE_NOENT | XML_PARSE_NOERROR | XML_PARSE_NOWARNING | XML_PARSE_HUGE );
   init_XmlhashParserData();
 
   if (reader != NULL) {
