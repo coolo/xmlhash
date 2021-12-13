@@ -19,6 +19,7 @@
 static VALUE m_current = Qnil;
 static VALUE m_stack = Qnil;
 static VALUE m_cstring = Qnil;
+static VALUE m_mutex = Qnil;
 static VALUE m_result = Qnil;
 static VALUE m_xmlClass = Qnil;
 #ifdef HAVE_RUBY_ENCODING_H
@@ -195,6 +196,8 @@ void processNode(xmlTextReaderPtr reader)
 
 static VALUE parse_xml_hash(VALUE self, VALUE rb_xml)
 {
+  rb_mutex_lock(m_mutex);
+
   char *data;
   xmlTextReaderPtr reader;
   int ret;
@@ -231,6 +234,7 @@ static VALUE parse_xml_hash(VALUE self, VALUE rb_xml)
 #ifdef HAVE_RUBY_ENCODING_H
   m_current_encoding = 0;
 #endif
+  rb_mutex_unlock(m_mutex);
   return m_result;
 }
 
@@ -239,6 +243,8 @@ void Init_xmlhash()
   VALUE mXmlhash;
 
   LIBXML_TEST_VERSION
+  m_mutex = rb_mutex_new();
+  rb_global_variable(&m_mutex);
   mXmlhash = rb_define_module("Xmlhash");
   m_xmlClass = rb_define_class_under(mXmlhash, "XMLHash", rb_cHash);
   rb_define_singleton_method(mXmlhash, "parse_int", &parse_xml_hash, 1);

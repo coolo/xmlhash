@@ -65,8 +65,7 @@ module Xmlhash
   end
 
   def self.parse(str)
-    @@mutex ||= Mutex.new
-    @@mutex.synchronize { parse_int(str) }
+    parse_int(str)
   end
 
 end
