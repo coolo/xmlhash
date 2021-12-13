@@ -133,6 +133,11 @@ class TestXmlhash < Minitest::Test
     assert_nil ret
   end
 
+  def test_entities
+    ret = Xmlhash.parse("<ents><text>&lt;</text><text>&gt;</text></ents>")
+    assert_equal ret, {"text"=>["<", ">"]}
+  end
+
   def test_utf8
     xml = '<package name="libconfig" project="home:coolo">
   <title>libconfig &#8211; C/C++ Configuration File Library</title>
