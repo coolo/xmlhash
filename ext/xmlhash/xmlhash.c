@@ -25,6 +25,43 @@ static VALUE m_xmlClass = Qnil;
 static rb_encoding *m_current_encoding = NULL;
 #endif
 
+#ifndef MAX_NODE_VALUE_LENGTH
+#define MAX_NODE_VALUE_LENGTH 65536
+#endif
+
+void toExpatEscape(char *temp_str)
+{
+    const char cEscapeChars[6]={'&','\'','\"','>','<','\0'};
+    const char * const pEscapedSeqTable[] =
+    {
+        "&amp;",
+        "&apos;",
+        "&quot;",
+        "&gt;",
+        "&lt;",
+    };
+    unsigned int i, j, k, nRef = 0, nEscapeCharsLen = strlen(cEscapeChars), str_len = strlen(temp_str);
+    int nShifts = 0;
+
+    for (i=0; i<str_len; i++)
+    {
+        for(nRef=0; nRef<nEscapeCharsLen; nRef++)
+        {
+            if(temp_str[i] == cEscapeChars[nRef])
+            {
+                if((nShifts = strlen(pEscapedSeqTable[nRef]) - 1) > 0)
+                {
+                    memmove(temp_str+i+nShifts, temp_str+i, str_len-i+nShifts);
+                    for(j=i,k=0; j<=i+nShifts,k<=nShifts; j++,k++)
+                        temp_str[j] = pEscapedSeqTable[nRef][k];
+                    str_len += nShifts;
+                }
+            }
+        }
+    }
+    temp_str[str_len] = '\0';
+}
+
 void init_XmlhashParserData()
 {
   m_current = Qnil;
@@ -132,24 +169,28 @@ void xml_hash_add_text(const xmlChar *text)
 #endif
 }
 
-void processAttribute(xmlTextReaderPtr reader) 
+void processAttribute(xmlTextReaderPtr reader)
 {
   const xmlChar *name = xmlTextReaderConstName(reader);
   assert(xmlTextReaderNodeType(reader) == XML_READER_TYPE_ATTRIBUTE);
   xml_hash_add_attribute(name, xmlTextReaderConstValue(reader));
 }
 
-void processNode(xmlTextReaderPtr reader) 
+void processNode(xmlTextReaderPtr reader)
 {
   const xmlChar *name;
   const xmlChar *value;
   int nodetype;
 
+
+
   name = xmlTextReaderConstName(reader);
   value = xmlTextReaderConstValue(reader);
 
+  char *tmp_value = calloc(MAX_NODE_VALUE_LENGTH, sizeof(char));
+
   nodetype = xmlTextReaderNodeType(reader);
-  
+
   if (nodetype == XML_READER_TYPE_COMMENT)
     return; // ignore
 
@@ -178,14 +219,19 @@ void processNode(xmlTextReaderPtr reader)
     return;
   }
 
-  if (nodetype == XML_READER_TYPE_TEXT || 
-      nodetype == XML_READER_TYPE_WHITESPACE || 
+  if (nodetype == XML_READER_TYPE_TEXT ||
+      nodetype == XML_READER_TYPE_WHITESPACE ||
       nodetype == XML_READER_TYPE_SIGNIFICANT_WHITESPACE)
     {
-      xml_hash_add_text(value);
+        /*
+         * if value contains '<' or '>' they should be escaped in '%lt;' and '%gt;'
+         */
+        strncpy(tmp_value, (char *)value, MAX_NODE_VALUE_LENGTH-1);
+        toExpatEscape(tmp_value);
+        xml_hash_add_text(tmp_value);
+        free(tmp_value);
       return;
     }
-
   printf("%d %s\n",
 	 nodetype,
 	 name
@@ -211,7 +257,7 @@ static VALUE parse_xml_hash(VALUE self, VALUE rb_xml)
   data = (char*)calloc(RSTRING_LEN(rb_xml), sizeof(char));
   memcpy(data, StringValuePtr(rb_xml), RSTRING_LEN(rb_xml));
 
-  reader = xmlReaderForMemory(data, RSTRING_LEN(rb_xml), 
+  reader = xmlReaderForMemory(data, RSTRING_LEN(rb_xml),
 			      NULL, NULL, XML_PARSE_NOENT | XML_PARSE_NOERROR | XML_PARSE_NOWARNING | XML_PARSE_HUGE );
   init_XmlhashParserData();
 
