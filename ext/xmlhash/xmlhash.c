@@ -26,7 +26,7 @@ static VALUE m_xmlClass = Qnil;
 static rb_encoding *m_current_encoding = NULL;
 #endif
 
-void init_XmlhashParserData()
+void init_XmlhashParserData(void)
 {
   m_current = Qnil;
   rb_ary_clear(m_stack);
@@ -238,7 +238,7 @@ static VALUE parse_xml_hash(VALUE self, VALUE rb_xml)
   return m_result;
 }
 
-void Init_xmlhash()
+void Init_xmlhash(void)
 {
   VALUE mXmlhash;
 
